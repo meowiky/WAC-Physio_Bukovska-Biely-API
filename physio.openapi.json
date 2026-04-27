@@ -1,0 +1,1666 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Physio API",
+    "version": "1.0.0",
+    "description": "Physio rehabilitation management API for Web-In-Cloud system",
+    "contact": {
+      "email": "xbukovska@stuba.sk"
+    },
+    "license": {
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  },
+  "servers": [
+    {
+      "description": "Cluster Endpoint",
+      "url": "/api"
+    }
+  ],
+  "tags": [
+    {
+      "name": "patients",
+      "description": "Patient registry managed by receptionist or physiotherapist"
+    },
+    {
+      "name": "therapists",
+      "description": "Doctors and physiotherapists who can lead rehabilitation sessions"
+    },
+    {
+      "name": "ambulances",
+      "description": "Ambulances and rooms where rehabilitation sessions take place"
+    },
+    {
+      "name": "rehabilitationPlans",
+      "description": "Rehabilitation plans assigned to one patient"
+    },
+    {
+      "name": "rehabilitationSessions",
+      "description": "Sessions belonging to a rehabilitation plan"
+    },
+    {
+      "name": "availability",
+      "description": "Availability checks for ambulances and therapists"
+    }
+  ],
+  "paths": {
+    "/patients": {
+      "get": {
+        "tags": [
+          "patients"
+        ],
+        "summary": "List patients",
+        "operationId": "getPatients",
+        "description": "Returns registered patients.",
+        "responses": {
+          "200": {
+            "description": "List of patients",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Patient"
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/PatientsExample"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "patients"
+        ],
+        "summary": "Create patient",
+        "operationId": "createPatient",
+        "description": "Creates a new patient.",
+        "requestBody": {
+          "description": "Patient data to store",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Patient"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/PatientExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stored patient",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Patient"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/PatientExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "description": "Patient with the specified id or birth number already exists"
+          }
+        }
+      }
+    },
+    "/patients/{patientId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "patientId",
+          "description": "Unique identifier of the patient",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "patients"
+        ],
+        "summary": "Get patient detail",
+        "operationId": "getPatient",
+        "description": "Returns one patient.",
+        "responses": {
+          "200": {
+            "description": "Patient detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Patient"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/PatientExample"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "patients"
+        ],
+        "summary": "Update patient",
+        "operationId": "updatePatient",
+        "description": "Updates an existing patient.",
+        "requestBody": {
+          "description": "Patient data to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Patient"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/PatientExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated patient",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Patient"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/PatientExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/PathBodyIdMismatch"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "patients"
+        ],
+        "summary": "Delete patient",
+        "operationId": "deletePatient",
+        "description": "Deletes a patient.",
+        "responses": {
+          "204": {
+            "description": "Patient deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Patient cannot be deleted because related rehabilitation plans still exist"
+          }
+        }
+      }
+    },
+    "/therapists": {
+      "get": {
+        "tags": [
+          "therapists"
+        ],
+        "summary": "List therapists",
+        "operationId": "getTherapists",
+        "description": "Returns physiotherapists.",
+        "responses": {
+          "200": {
+            "description": "List of therapists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Therapist"
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/TherapistsExample"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "therapists"
+        ],
+        "summary": "Create therapist",
+        "operationId": "createTherapist",
+        "description": "Creates a therapist record.",
+        "requestBody": {
+          "description": "Therapist data to store",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Therapist"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/TherapistExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stored therapist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Therapist"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/TherapistExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "description": "Therapist with the specified id already exists"
+          }
+        }
+      }
+    },
+    "/therapists/{therapistId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "therapistId",
+          "description": "Unique identifier of the therapist",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "therapists"
+        ],
+        "summary": "Get therapist detail",
+        "operationId": "getTherapist",
+        "description": "Returns one therapist.",
+        "responses": {
+          "200": {
+            "description": "Therapist detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Therapist"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/TherapistExample"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "therapists"
+        ],
+        "summary": "Update therapist",
+        "operationId": "updateTherapist",
+        "description": "Updates an existing therapist.",
+        "requestBody": {
+          "description": "Therapist data to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Therapist"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/TherapistExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated therapist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Therapist"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/TherapistExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/PathBodyIdMismatch"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "therapists"
+        ],
+        "summary": "Delete therapist",
+        "operationId": "deleteTherapist",
+        "description": "Deletes a therapist.",
+        "responses": {
+          "204": {
+            "description": "Therapist deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Therapist cannot be deleted because related rehabilitation sessions still exist"
+          }
+        }
+      }
+    },
+    "/ambulances": {
+      "get": {
+        "tags": [
+          "ambulances"
+        ],
+        "summary": "List ambulances",
+        "operationId": "getAmbulances",
+        "description": "Returns ambulances and rehabilitation rooms.",
+        "responses": {
+          "200": {
+            "description": "List of ambulances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Ambulance"
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/AmbulancesExample"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ambulances"
+        ],
+        "summary": "Create ambulance",
+        "operationId": "createAmbulance",
+        "description": "Creates an ambulance or rehabilitation room record.",
+        "requestBody": {
+          "description": "Ambulance data to store",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Ambulance"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/AmbulanceExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stored ambulance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ambulance"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/AmbulanceExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "description": "Ambulance with the specified id already exists"
+          }
+        }
+      }
+    },
+    "/ambulances/{ambulanceId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "ambulanceId",
+          "description": "Unique identifier of the ambulance",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "ambulances"
+        ],
+        "summary": "Get ambulance detail",
+        "operationId": "getAmbulance",
+        "description": "Returns one ambulance or rehabilitation room.",
+        "responses": {
+          "200": {
+            "description": "Ambulance detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ambulance"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/AmbulanceExample"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ambulances"
+        ],
+        "summary": "Update ambulance",
+        "operationId": "updateAmbulance",
+        "description": "Updates an existing ambulance or room.",
+        "requestBody": {
+          "description": "Ambulance data to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Ambulance"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/AmbulanceExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated ambulance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ambulance"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/AmbulanceExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/PathBodyIdMismatch"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ambulances"
+        ],
+        "summary": "Delete ambulance",
+        "operationId": "deleteAmbulance",
+        "description": "Deletes an ambulance or room.",
+        "responses": {
+          "204": {
+            "description": "Ambulance deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Ambulance cannot be deleted because related rehabilitation sessions still exist"
+          }
+        }
+      }
+    },
+    "/rehabilitation-plans": {
+      "get": {
+        "tags": [
+          "rehabilitationPlans"
+        ],
+        "summary": "List rehabilitation plans",
+        "operationId": "getRehabilitationPlans",
+        "description": "Returns rehabilitation plans.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "patientId",
+            "description": "Optional patient filter.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "description": "Optional plan status filter.",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/RehabilitationPlanStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of rehabilitation plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RehabilitationPlan"
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/RehabilitationPlansExample"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "rehabilitationPlans"
+        ],
+        "summary": "Create rehabilitation plan",
+        "operationId": "createRehabilitationPlan",
+        "description": "Creates a rehabilitation plan for one patient.",
+        "requestBody": {
+          "description": "Rehabilitation plan to store",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RehabilitationPlan"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/RehabilitationPlanExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stored rehabilitation plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RehabilitationPlan"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/RehabilitationPlanExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "description": "Referenced patient does not exist"
+          },
+          "409": {
+            "description": "Plan with the specified id already exists"
+          }
+        }
+      }
+    },
+    "/rehabilitation-plans/{planId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "planId",
+          "description": "Unique identifier of the rehabilitation plan",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "rehabilitationPlans"
+        ],
+        "summary": "Get rehabilitation plan detail",
+        "operationId": "getRehabilitationPlan",
+        "description": "Returns one rehabilitation plan.",
+        "responses": {
+          "200": {
+            "description": "Rehabilitation plan detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RehabilitationPlan"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/RehabilitationPlanExample"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "rehabilitationPlans"
+        ],
+        "summary": "Update rehabilitation plan",
+        "operationId": "updateRehabilitationPlan",
+        "description": "Updates an existing rehabilitation plan.",
+        "requestBody": {
+          "description": "Rehabilitation plan data to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RehabilitationPlan"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/RehabilitationPlanExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated rehabilitation plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RehabilitationPlan"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/RehabilitationPlanExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/PathBodyIdMismatch"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "rehabilitationPlans"
+        ],
+        "summary": "Delete rehabilitation plan",
+        "operationId": "deleteRehabilitationPlan",
+        "description": "Deletes a rehabilitation plan.",
+        "responses": {
+          "204": {
+            "description": "Rehabilitation plan deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Plan cannot be deleted because related sessions still exist"
+          }
+        }
+      }
+    },
+    "/rehabilitation-sessions": {
+      "get": {
+        "tags": [
+          "rehabilitationSessions"
+        ],
+        "summary": "List rehabilitation sessions",
+        "operationId": "getRehabilitationSessions",
+        "description": "Returns rehabilitation sessions.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "planId",
+            "description": "Optional rehabilitation plan filter.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "therapistId",
+            "description": "Optional therapist filter.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ambulanceId",
+            "description": "Optional ambulance filter.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "attendanceStatus",
+            "description": "Optional attendance status filter.",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/AttendanceStatus"
+            }
+          },
+          {
+            "in": "query",
+            "name": "confirmationStatus",
+            "description": "Optional confirmation status filter.",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SessionConfirmationStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of rehabilitation sessions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RehabilitationSession"
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/RehabilitationSessionsExample"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "rehabilitationSessions"
+        ],
+        "summary": "Create rehabilitation session",
+        "operationId": "createRehabilitationSession",
+        "description": "Creates a session belonging to one rehabilitation plan.",
+        "requestBody": {
+          "description": "Session data to store",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RehabilitationSession"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/RehabilitationSessionExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stored rehabilitation session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RehabilitationSession"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/RehabilitationSessionExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "description": "Referenced rehabilitation plan, therapist or ambulance does not exist"
+          },
+          "409": {
+            "description": "Session with the specified id already exists or selected therapist or ambulance is not available"
+          }
+        }
+      }
+    },
+    "/rehabilitation-sessions/{sessionId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "sessionId",
+          "description": "Unique identifier of the rehabilitation session",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "rehabilitationSessions"
+        ],
+        "summary": "Get rehabilitation session detail",
+        "operationId": "getRehabilitationSession",
+        "description": "Returns one rehabilitation session.",
+        "responses": {
+          "200": {
+            "description": "Rehabilitation session detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RehabilitationSession"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/RehabilitationSessionExample"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "rehabilitationSessions"
+        ],
+        "summary": "Update rehabilitation session",
+        "operationId": "updateRehabilitationSession",
+        "description": "Updates an existing rehabilitation session.",
+        "requestBody": {
+          "description": "Session data to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RehabilitationSession"
+              },
+              "examples": {
+                "request": {
+                  "$ref": "#/components/examples/RehabilitationSessionExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated rehabilitation session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RehabilitationSession"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/RehabilitationSessionExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/PathBodyIdMismatch"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Selected therapist or ambulance is not available for the requested time interval"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "rehabilitationSessions"
+        ],
+        "summary": "Delete rehabilitation session",
+        "operationId": "deleteRehabilitationSession",
+        "description": "Deletes a rehabilitation session.",
+        "responses": {
+          "204": {
+            "description": "Rehabilitation session deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/availability": {
+      "get": {
+        "tags": [
+          "availability"
+        ],
+        "summary": "Check ambulance and therapist availability",
+        "operationId": "checkAvailability",
+        "description": "Checks whether the selected ambulance is free and whether the selected therapist has no overlapping session in the requested time interval.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "startDateTime",
+            "description": "Requested session start date and time.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "endDateTime",
+            "description": "Requested session end date and time.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ambulanceId",
+            "description": "Optional ambulance to check.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "therapistId",
+            "description": "Optional therapist to check.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "excludeSessionId",
+            "description": "Optional session id to ignore during overlap checks, useful while editing an existing session.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Availability result for the requested interval",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResult"
+                },
+                "examples": {
+                  "response": {
+                    "$ref": "#/components/examples/AvailabilityResultExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "description": "Specified therapist or ambulance does not exist"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "BadRequest": {
+        "description": "Missing mandatory properties or invalid values in the request body."
+      },
+      "NotFound": {
+        "description": "Requested resource does not exist."
+      },
+      "PathBodyIdMismatch": {
+        "description": "Identifier in path does not match identifier in the request body."
+      }
+    },
+    "schemas": {
+      "Patient": {
+        "type": "object",
+        "required": [
+          "id",
+          "firstName",
+          "surname",
+          "birthNumber",
+          "dateOfBirth",
+          "sex",
+          "healthInsurance",
+          "email",
+          "phone",
+          "firstVisitDate"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "patient-001",
+            "description": "Unique identifier of the patient"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Janko"
+          },
+          "surname": {
+            "type": "string",
+            "example": "Mrkvicka"
+          },
+          "birthNumber": {
+            "type": "string",
+            "example": "905514/1234",
+            "description": "Rodne cislo pacienta"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "example": "1990-05-14"
+          },
+          "sex": {
+            "$ref": "#/components/schemas/Sex"
+          },
+          "healthInsurance": {
+            "$ref": "#/components/schemas/HealthInsurance"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "janko.mrkvicka@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+421905123456"
+          },
+          "firstVisitDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-05-02"
+          }
+        }
+      },
+      "Therapist": {
+        "type": "object",
+        "required": [
+          "id",
+          "firstName",
+          "surname",
+          "email",
+          "phone"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "therapist-001",
+            "description": "Unique identifier of the therapist"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Maria"
+          },
+          "surname": {
+            "type": "string",
+            "example": "Dubova"
+          },
+          "title": {
+            "type": "string",
+            "example": "MUDr."
+          },
+          "specialization": {
+            "type": "string",
+            "example": "musculoskeletal physiotherapy"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "maria.dubova@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+421903111222"
+          }
+        }
+      },
+      "Ambulance": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "roomNumber"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "ambulance-a12",
+            "description": "Unique identifier of the ambulance or rehabilitation room"
+          },
+          "name": {
+            "type": "string",
+            "example": "Rehabilitation ambulance A12"
+          },
+          "roomNumber": {
+            "type": "string",
+            "example": "A12"
+          },
+          "location": {
+            "type": "string",
+            "example": "2nd floor"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Main room for individual physiotherapy"
+          }
+        }
+      },
+      "Sex": {
+        "type": "string",
+        "enum": [
+          "male",
+          "female"
+        ],
+        "example": "female"
+      },
+      "HealthInsurance": {
+        "type": "string",
+        "enum": [
+          "UNION",
+          "VSZP",
+          "Dovera"
+        ],
+        "example": "VSZP"
+      },
+      "RehabilitationPlan": {
+        "type": "object",
+        "required": [
+          "id",
+          "patientId",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "plan-001",
+            "description": "Unique identifier of the rehabilitation plan"
+          },
+          "patientId": {
+            "type": "string",
+            "example": "patient-001",
+            "description": "Identifier of the patient who owns the plan"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RehabilitationPlanStatus"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Post-operative rehabilitation after ACL reconstruction"
+          }
+        }
+      },
+      "RehabilitationPlanStatus": {
+        "type": "string",
+        "enum": [
+          "draft",
+          "active",
+          "completed",
+          "canceled"
+        ],
+        "example": "active"
+      },
+      "RehabilitationSession": {
+        "type": "object",
+        "required": [
+          "id",
+          "planId",
+          "ambulanceId",
+          "therapistId",
+          "attendanceStatus",
+          "confirmationStatus"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "session-001",
+            "description": "Unique identifier of the session"
+          },
+          "planId": {
+            "type": "string",
+            "example": "plan-001",
+            "description": "Identifier of the parent rehabilitation plan"
+          },
+          "ambulanceId": {
+            "type": "string",
+            "example": "ambulance-a12",
+            "description": "Identifier of the ambulance or room where the session takes place"
+          },
+          "therapistId": {
+            "type": "string",
+            "example": "therapist-001",
+            "description": "Identifier of the doctor or physiotherapist assigned to the session"
+          },
+          "startDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-05-05T08:30:00Z",
+            "description": "Start of the session. May be null for tentative scheduling."
+          },
+          "endDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-05-05T09:15:00Z",
+            "description": "End of the session. May be null for tentative scheduling."
+          },
+          "attendanceStatus": {
+            "$ref": "#/components/schemas/AttendanceStatus"
+          },
+          "confirmationStatus": {
+            "$ref": "#/components/schemas/SessionConfirmationStatus"
+          },
+          "sessionNotes": {
+            "type": "string",
+            "example": "Session reserved, exact time will be confirmed after phone call with patient."
+          }
+        }
+      },
+      "AttendanceStatus": {
+        "type": "string",
+        "enum": [
+          "planned",
+          "attended",
+          "canceled"
+        ],
+        "example": "planned"
+      },
+      "SessionConfirmationStatus": {
+        "type": "string",
+        "enum": [
+          "tentative",
+          "confirmed"
+        ],
+        "example": "tentative"
+      },
+      "AvailabilityResult": {
+        "type": "object",
+        "required": [
+          "startDateTime",
+          "endDateTime"
+        ],
+        "properties": {
+          "startDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-05-05T08:30:00Z"
+          },
+          "endDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-05-05T09:15:00Z"
+          },
+          "ambulance": {
+            "$ref": "#/components/schemas/AvailabilityCheckItem"
+          },
+          "therapist": {
+            "$ref": "#/components/schemas/AvailabilityCheckItem"
+          }
+        }
+      },
+      "AvailabilityCheckItem": {
+        "type": "object",
+        "required": [
+          "isAvailable"
+        ],
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "example": "ambulance-a12"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "example": true
+          },
+          "conflictingSessionId": {
+            "type": "string",
+            "nullable": true,
+            "example": "session-003"
+          }
+        }
+      }
+    },
+    "examples": {
+      "PatientExample": {
+        "summary": "Example patient",
+        "description": "Patient registered in physiotherapy",
+        "value": {
+          "id": "patient-001",
+          "firstName": "Janko",
+          "surname": "Mrkvicka",
+          "birthNumber": "905514/1234",
+          "dateOfBirth": "1990-05-14",
+          "sex": "male",
+          "healthInsurance": "VSZP",
+          "email": "janko.mrkvicka@example.com",
+          "phone": "+421905123456",
+          "firstVisitDate": "2026-05-02"
+        }
+      },
+      "PatientsExample": {
+        "summary": "List of patients",
+        "description": "Example of registered patients",
+        "value": [
+          {
+            "id": "patient-001",
+            "firstName": "Janko",
+            "surname": "Mrkvicka",
+            "birthNumber": "905514/1234",
+            "dateOfBirth": "1990-05-14",
+            "sex": "male",
+            "healthInsurance": "VSZP",
+            "email": "janko.mrkvicka@example.com",
+            "phone": "+421905123456",
+            "firstVisitDate": "2026-05-02"
+          },
+          {
+            "id": "patient-002",
+            "firstName": "Jana",
+            "surname": "Sikovna",
+            "birthNumber": "925210/5678",
+            "dateOfBirth": "1992-02-10",
+            "sex": "female",
+            "healthInsurance": "Dovera",
+            "email": "jana.sikovna@example.com",
+            "phone": "+421907654321",
+            "firstVisitDate": "2026-05-04"
+          }
+        ]
+      },
+      "TherapistExample": {
+        "summary": "Example therapist",
+        "description": "Doctor or physiotherapist who can lead sessions",
+        "value": {
+          "id": "therapist-001",
+          "firstName": "Jana",
+          "surname": "Biela",
+          "title": "MUDr.",
+          "specialization": "rehabilitation medicine",
+          "email": "jana.biela@example.com",
+          "phone": "+421903111222"
+        }
+      },
+      "TherapistsExample": {
+        "summary": "List of therapists",
+        "description": "Example of doctors and physiotherapists",
+        "value": [
+          {
+            "id": "therapist-001",
+            "firstName": "Jana",
+            "surname": "Biela",
+            "title": "MUDr.",
+            "specialization": "rehabilitation medicine",
+            "email": "jana.biela@example.com",
+            "phone": "+421903111222"
+          },
+          {
+            "id": "therapist-002",
+            "firstName": "Martin",
+            "surname": "Novak",
+            "title": "Bc.",
+            "specialization": "musculoskeletal physiotherapy",
+            "email": "martin.novak@example.com",
+            "phone": "+421904222333"
+          }
+        ]
+      },
+      "AmbulanceExample": {
+        "summary": "Example ambulance",
+        "description": "Ambulance or rehabilitation room",
+        "value": {
+          "id": "ambulance-a12",
+          "name": "Rehabilitation ambulance A12",
+          "roomNumber": "A12",
+          "location": "2nd floor",
+          "notes": "Main room for individual physiotherapy"
+        }
+      },
+      "AmbulancesExample": {
+        "summary": "List of ambulances",
+        "description": "Example of ambulances and rehabilitation rooms",
+        "value": [
+          {
+            "id": "ambulance-a12",
+            "name": "Rehabilitation ambulance A12",
+            "roomNumber": "A12",
+            "location": "2nd floor",
+            "notes": "Main room for individual physiotherapy"
+          },
+          {
+            "id": "ambulance-b03",
+            "name": "Hydrotherapy room B03",
+            "roomNumber": "B03",
+            "location": "ground floor",
+            "notes": "Reserved for water therapy sessions"
+          }
+        ]
+      },
+      "RehabilitationPlanExample": {
+        "summary": "Example rehabilitation plan",
+        "description": "One rehabilitation plan belonging to one patient",
+        "value": {
+          "id": "plan-001",
+          "patientId": "patient-001",
+          "status": "active",
+          "notes": "Post-operative rehabilitation after ACL reconstruction"
+        }
+      },
+      "RehabilitationPlansExample": {
+        "summary": "List of rehabilitation plans",
+        "description": "Example set of rehabilitation plans",
+        "value": [
+          {
+            "id": "plan-001",
+            "patientId": "patient-001",
+            "status": "active",
+            "notes": "Post-operative rehabilitation after ACL reconstruction"
+          },
+          {
+            "id": "plan-002",
+            "patientId": "patient-002",
+            "status": "draft",
+            "notes": "Initial plan created after first examination"
+          }
+        ]
+      },
+      "RehabilitationSessionExample": {
+        "summary": "Example rehabilitation session",
+        "description": "Session belonging to one rehabilitation plan",
+        "value": {
+          "id": "session-001",
+          "planId": "plan-001",
+          "ambulanceId": "ambulance-a12",
+          "therapistId": "therapist-001",
+          "startDateTime": "2026-05-05T08:30:00Z",
+          "endDateTime": "2026-05-05T09:15:00Z",
+          "attendanceStatus": "planned",
+          "confirmationStatus": "confirmed",
+          "sessionNotes": "Patient confirmed by phone."
+        }
+      },
+      "RehabilitationSessionsExample": {
+        "summary": "List of rehabilitation sessions",
+        "description": "Example set of rehabilitation sessions",
+        "value": [
+          {
+            "id": "session-001",
+            "planId": "plan-001",
+            "ambulanceId": "ambulance-a12",
+            "therapistId": "therapist-001",
+            "startDateTime": "2026-05-05T08:30:00Z",
+            "endDateTime": "2026-05-05T09:15:00Z",
+            "attendanceStatus": "planned",
+            "confirmationStatus": "confirmed",
+            "sessionNotes": "Patient confirmed by phone."
+          },
+          {
+            "id": "session-002",
+            "planId": "plan-001",
+            "ambulanceId": "ambulance-a12",
+            "therapistId": "therapist-002",
+            "startDateTime": null,
+            "endDateTime": null,
+            "attendanceStatus": "planned",
+            "confirmationStatus": "tentative",
+            "sessionNotes": "Follow-up session reserved, exact date not confirmed yet."
+          }
+        ]
+      },
+      "AvailabilityResultExample": {
+        "summary": "Availability check result",
+        "description": "Example of room and therapist availability for a selected time interval",
+        "value": {
+          "startDateTime": "2026-05-05T08:30:00Z",
+          "endDateTime": "2026-05-05T09:15:00Z",
+          "ambulance": {
+            "resourceId": "ambulance-a12",
+            "isAvailable": false,
+            "conflictingSessionId": "session-003"
+          },
+          "therapist": {
+            "resourceId": "therapist-001",
+            "isAvailable": true,
+            "conflictingSessionId": null
+          }
+        }
+      }
+    }
+  }
+}
