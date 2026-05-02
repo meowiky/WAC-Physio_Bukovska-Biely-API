@@ -3,15 +3,25 @@
 COMMAND=${1:-"start"}
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ENV_FILE="${PROJECT_ROOT}/.env"
 
-export AMBULANCE_API_ENVIRONMENT="Development"
-export AMBULANCE_API_PORT="8080"
-export AMBULANCE_API_MONGODB_USERNAME="root"
-export AMBULANCE_API_MONGODB_PASSWORD="neUhaDnes"
+if [ -f "${ENV_FILE}" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    . "${ENV_FILE}"
+    set +a
+fi
+
+export PHYSIO_API_ENVIRONMENT="${PHYSIO_API_ENVIRONMENT:-Development}"
+export PHYSIO_API_PORT="${PHYSIO_API_PORT:-8080}"
+export PHYSIO_API_MONGODB_HOST="${PHYSIO_API_MONGODB_HOST:-localhost}"
+export PHYSIO_API_MONGODB_PORT="${PHYSIO_API_MONGODB_PORT:-27017}"
+export PHYSIO_API_MONGODB_DATABASE="${PHYSIO_API_MONGODB_DATABASE:-wac-physio}"
+export PHYSIO_API_MONGODB_TIMEOUT_SECONDS="${PHYSIO_API_MONGODB_TIMEOUT_SECONDS:-10}"
 export DOCKER_HUB_ID="meowiky002"
 
 mongo() {
-    docker compose --file "${PROJECT_ROOT}/deployments/docker-compose/compose.yaml" "$@"
+    docker compose --env-file "${ENV_FILE}" --file "${PROJECT_ROOT}/deployments/docker-compose/compose.yaml" "$@"
 }
 
 cleanup() {
