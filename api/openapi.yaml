@@ -1,0 +1,1340 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: xbukovska@stuba.sk
+  description: Physio rehabilitation management API for Web-In-Cloud system
+  license:
+    name: CC BY 4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+  title: Physio API
+  version: 1.0.0
+servers:
+- description: Cluster Endpoint
+  url: /api
+tags:
+- description: Patient registry managed by receptionist or physiotherapist
+  name: patients
+- description: Doctors and physiotherapists who can lead rehabilitation sessions
+  name: therapists
+- description: Ambulances and rooms where rehabilitation sessions take place
+  name: ambulances
+- description: Rehabilitation plans assigned to one patient
+  name: rehabilitationPlans
+- description: Sessions belonging to a rehabilitation plan
+  name: rehabilitationSessions
+- description: Availability checks for ambulances and therapists
+  name: availability
+paths:
+  /patients:
+    get:
+      description: Returns registered patients.
+      operationId: getPatients
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/PatientsExample"
+              schema:
+                items:
+                  $ref: "#/components/schemas/Patient"
+                type: array
+          description: List of patients
+      summary: List patients
+      tags:
+      - patients
+    post:
+      description: Creates a new patient.
+      operationId: createPatient
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/PatientExample"
+            schema:
+              $ref: "#/components/schemas/Patient"
+        description: Patient data to store
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/PatientExample"
+              schema:
+                $ref: "#/components/schemas/Patient"
+          description: Stored patient
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "409":
+          description: Patient with the specified id or birth number already exists
+      summary: Create patient
+      tags:
+      - patients
+  /patients/{patientId}:
+    delete:
+      description: Deletes a patient.
+      operationId: deletePatient
+      parameters:
+      - description: Unique identifier of the patient
+        explode: false
+        in: path
+        name: patientId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Patient deleted
+        "404":
+          description: Requested resource does not exist.
+        "409":
+          description: Patient cannot be deleted because related rehabilitation plans
+            still exist
+      summary: Delete patient
+      tags:
+      - patients
+    get:
+      description: Returns one patient.
+      operationId: getPatient
+      parameters:
+      - description: Unique identifier of the patient
+        explode: false
+        in: path
+        name: patientId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/PatientExample"
+              schema:
+                $ref: "#/components/schemas/Patient"
+          description: Patient detail
+        "404":
+          description: Requested resource does not exist.
+      summary: Get patient detail
+      tags:
+      - patients
+    put:
+      description: Updates an existing patient.
+      operationId: updatePatient
+      parameters:
+      - description: Unique identifier of the patient
+        explode: false
+        in: path
+        name: patientId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/PatientExample"
+            schema:
+              $ref: "#/components/schemas/Patient"
+        description: Patient data to update
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/PatientExample"
+              schema:
+                $ref: "#/components/schemas/Patient"
+          description: Updated patient
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "403":
+          description: Identifier in path does not match identifier in the request
+            body.
+        "404":
+          description: Requested resource does not exist.
+      summary: Update patient
+      tags:
+      - patients
+  /therapists:
+    get:
+      description: Returns physiotherapists.
+      operationId: getTherapists
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/TherapistsExample"
+              schema:
+                items:
+                  $ref: "#/components/schemas/Therapist"
+                type: array
+          description: List of therapists
+      summary: List therapists
+      tags:
+      - therapists
+    post:
+      description: Creates a therapist record.
+      operationId: createTherapist
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/TherapistExample"
+            schema:
+              $ref: "#/components/schemas/Therapist"
+        description: Therapist data to store
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/TherapistExample"
+              schema:
+                $ref: "#/components/schemas/Therapist"
+          description: Stored therapist
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "409":
+          description: Therapist with the specified id already exists
+      summary: Create therapist
+      tags:
+      - therapists
+  /therapists/{therapistId}:
+    delete:
+      description: Deletes a therapist.
+      operationId: deleteTherapist
+      parameters:
+      - description: Unique identifier of the therapist
+        explode: false
+        in: path
+        name: therapistId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Therapist deleted
+        "404":
+          description: Requested resource does not exist.
+        "409":
+          description: Therapist cannot be deleted because related rehabilitation
+            sessions still exist
+      summary: Delete therapist
+      tags:
+      - therapists
+    get:
+      description: Returns one therapist.
+      operationId: getTherapist
+      parameters:
+      - description: Unique identifier of the therapist
+        explode: false
+        in: path
+        name: therapistId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/TherapistExample"
+              schema:
+                $ref: "#/components/schemas/Therapist"
+          description: Therapist detail
+        "404":
+          description: Requested resource does not exist.
+      summary: Get therapist detail
+      tags:
+      - therapists
+    put:
+      description: Updates an existing therapist.
+      operationId: updateTherapist
+      parameters:
+      - description: Unique identifier of the therapist
+        explode: false
+        in: path
+        name: therapistId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/TherapistExample"
+            schema:
+              $ref: "#/components/schemas/Therapist"
+        description: Therapist data to update
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/TherapistExample"
+              schema:
+                $ref: "#/components/schemas/Therapist"
+          description: Updated therapist
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "403":
+          description: Identifier in path does not match identifier in the request
+            body.
+        "404":
+          description: Requested resource does not exist.
+      summary: Update therapist
+      tags:
+      - therapists
+  /ambulances:
+    get:
+      description: Returns ambulances and rehabilitation rooms.
+      operationId: getAmbulances
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/AmbulancesExample"
+              schema:
+                items:
+                  $ref: "#/components/schemas/Ambulance"
+                type: array
+          description: List of ambulances
+      summary: List ambulances
+      tags:
+      - ambulances
+    post:
+      description: Creates an ambulance or rehabilitation room record.
+      operationId: createAmbulance
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/AmbulanceExample"
+            schema:
+              $ref: "#/components/schemas/Ambulance"
+        description: Ambulance data to store
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/AmbulanceExample"
+              schema:
+                $ref: "#/components/schemas/Ambulance"
+          description: Stored ambulance
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "409":
+          description: Ambulance with the specified id already exists
+      summary: Create ambulance
+      tags:
+      - ambulances
+  /ambulances/{ambulanceId}:
+    delete:
+      description: Deletes an ambulance or room.
+      operationId: deleteAmbulance
+      parameters:
+      - description: Unique identifier of the ambulance
+        explode: false
+        in: path
+        name: ambulanceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Ambulance deleted
+        "404":
+          description: Requested resource does not exist.
+        "409":
+          description: Ambulance cannot be deleted because related rehabilitation
+            sessions still exist
+      summary: Delete ambulance
+      tags:
+      - ambulances
+    get:
+      description: Returns one ambulance or rehabilitation room.
+      operationId: getAmbulance
+      parameters:
+      - description: Unique identifier of the ambulance
+        explode: false
+        in: path
+        name: ambulanceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/AmbulanceExample"
+              schema:
+                $ref: "#/components/schemas/Ambulance"
+          description: Ambulance detail
+        "404":
+          description: Requested resource does not exist.
+      summary: Get ambulance detail
+      tags:
+      - ambulances
+    put:
+      description: Updates an existing ambulance or room.
+      operationId: updateAmbulance
+      parameters:
+      - description: Unique identifier of the ambulance
+        explode: false
+        in: path
+        name: ambulanceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/AmbulanceExample"
+            schema:
+              $ref: "#/components/schemas/Ambulance"
+        description: Ambulance data to update
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/AmbulanceExample"
+              schema:
+                $ref: "#/components/schemas/Ambulance"
+          description: Updated ambulance
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "403":
+          description: Identifier in path does not match identifier in the request
+            body.
+        "404":
+          description: Requested resource does not exist.
+      summary: Update ambulance
+      tags:
+      - ambulances
+  /rehabilitation-plans:
+    get:
+      description: Returns rehabilitation plans.
+      operationId: getRehabilitationPlans
+      parameters:
+      - description: Optional patient filter.
+        explode: true
+        in: query
+        name: patientId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Optional plan status filter.
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          $ref: "#/components/schemas/RehabilitationPlanStatus"
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/RehabilitationPlansExample"
+              schema:
+                items:
+                  $ref: "#/components/schemas/RehabilitationPlan"
+                type: array
+          description: List of rehabilitation plans
+      summary: List rehabilitation plans
+      tags:
+      - rehabilitationPlans
+    post:
+      description: Creates a rehabilitation plan for one patient.
+      operationId: createRehabilitationPlan
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/RehabilitationPlanExample"
+            schema:
+              $ref: "#/components/schemas/RehabilitationPlan"
+        description: Rehabilitation plan to store
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/RehabilitationPlanExample"
+              schema:
+                $ref: "#/components/schemas/RehabilitationPlan"
+          description: Stored rehabilitation plan
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "404":
+          description: Referenced patient does not exist
+        "409":
+          description: Plan with the specified id already exists
+      summary: Create rehabilitation plan
+      tags:
+      - rehabilitationPlans
+  /rehabilitation-plans/{planId}:
+    delete:
+      description: Deletes a rehabilitation plan.
+      operationId: deleteRehabilitationPlan
+      parameters:
+      - description: Unique identifier of the rehabilitation plan
+        explode: false
+        in: path
+        name: planId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Rehabilitation plan deleted
+        "404":
+          description: Requested resource does not exist.
+        "409":
+          description: Plan cannot be deleted because related sessions still exist
+      summary: Delete rehabilitation plan
+      tags:
+      - rehabilitationPlans
+    get:
+      description: Returns one rehabilitation plan.
+      operationId: getRehabilitationPlan
+      parameters:
+      - description: Unique identifier of the rehabilitation plan
+        explode: false
+        in: path
+        name: planId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/RehabilitationPlanExample"
+              schema:
+                $ref: "#/components/schemas/RehabilitationPlan"
+          description: Rehabilitation plan detail
+        "404":
+          description: Requested resource does not exist.
+      summary: Get rehabilitation plan detail
+      tags:
+      - rehabilitationPlans
+    put:
+      description: Updates an existing rehabilitation plan.
+      operationId: updateRehabilitationPlan
+      parameters:
+      - description: Unique identifier of the rehabilitation plan
+        explode: false
+        in: path
+        name: planId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/RehabilitationPlanExample"
+            schema:
+              $ref: "#/components/schemas/RehabilitationPlan"
+        description: Rehabilitation plan data to update
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/RehabilitationPlanExample"
+              schema:
+                $ref: "#/components/schemas/RehabilitationPlan"
+          description: Updated rehabilitation plan
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "403":
+          description: Identifier in path does not match identifier in the request
+            body.
+        "404":
+          description: Requested resource does not exist.
+      summary: Update rehabilitation plan
+      tags:
+      - rehabilitationPlans
+  /rehabilitation-sessions:
+    get:
+      description: Returns rehabilitation sessions.
+      operationId: getRehabilitationSessions
+      parameters:
+      - description: Optional rehabilitation plan filter.
+        explode: true
+        in: query
+        name: planId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Optional therapist filter.
+        explode: true
+        in: query
+        name: therapistId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Optional ambulance filter.
+        explode: true
+        in: query
+        name: ambulanceId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Optional attendance status filter.
+        explode: true
+        in: query
+        name: attendanceStatus
+        required: false
+        schema:
+          $ref: "#/components/schemas/AttendanceStatus"
+        style: form
+      - description: Optional confirmation status filter.
+        explode: true
+        in: query
+        name: confirmationStatus
+        required: false
+        schema:
+          $ref: "#/components/schemas/SessionConfirmationStatus"
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/RehabilitationSessionsExample"
+              schema:
+                items:
+                  $ref: "#/components/schemas/RehabilitationSession"
+                type: array
+          description: List of rehabilitation sessions
+      summary: List rehabilitation sessions
+      tags:
+      - rehabilitationSessions
+    post:
+      description: Creates a session belonging to one rehabilitation plan.
+      operationId: createRehabilitationSession
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/RehabilitationSessionExample"
+            schema:
+              $ref: "#/components/schemas/RehabilitationSession"
+        description: Session data to store
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/RehabilitationSessionExample"
+              schema:
+                $ref: "#/components/schemas/RehabilitationSession"
+          description: Stored rehabilitation session
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "404":
+          description: "Referenced rehabilitation plan, therapist or ambulance does\
+            \ not exist"
+        "409":
+          description: Session with the specified id already exists or selected therapist
+            or ambulance is not available
+      summary: Create rehabilitation session
+      tags:
+      - rehabilitationSessions
+  /rehabilitation-sessions/{sessionId}:
+    delete:
+      description: Deletes a rehabilitation session.
+      operationId: deleteRehabilitationSession
+      parameters:
+      - description: Unique identifier of the rehabilitation session
+        explode: false
+        in: path
+        name: sessionId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Rehabilitation session deleted
+        "404":
+          description: Requested resource does not exist.
+      summary: Delete rehabilitation session
+      tags:
+      - rehabilitationSessions
+    get:
+      description: Returns one rehabilitation session.
+      operationId: getRehabilitationSession
+      parameters:
+      - description: Unique identifier of the rehabilitation session
+        explode: false
+        in: path
+        name: sessionId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/RehabilitationSessionExample"
+              schema:
+                $ref: "#/components/schemas/RehabilitationSession"
+          description: Rehabilitation session detail
+        "404":
+          description: Requested resource does not exist.
+      summary: Get rehabilitation session detail
+      tags:
+      - rehabilitationSessions
+    put:
+      description: Updates an existing rehabilitation session.
+      operationId: updateRehabilitationSession
+      parameters:
+      - description: Unique identifier of the rehabilitation session
+        explode: false
+        in: path
+        name: sessionId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            examples:
+              request:
+                $ref: "#/components/examples/RehabilitationSessionExample"
+            schema:
+              $ref: "#/components/schemas/RehabilitationSession"
+        description: Session data to update
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/RehabilitationSessionExample"
+              schema:
+                $ref: "#/components/schemas/RehabilitationSession"
+          description: Updated rehabilitation session
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "403":
+          description: Identifier in path does not match identifier in the request
+            body.
+        "404":
+          description: Requested resource does not exist.
+        "409":
+          description: Selected therapist or ambulance is not available for the requested
+            time interval
+      summary: Update rehabilitation session
+      tags:
+      - rehabilitationSessions
+  /availability:
+    get:
+      description: Checks whether the selected ambulance is free and whether the selected
+        therapist has no overlapping session in the requested time interval.
+      operationId: checkAvailability
+      parameters:
+      - description: Requested session start date and time.
+        explode: true
+        in: query
+        name: startDateTime
+        required: true
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Requested session end date and time.
+        explode: true
+        in: query
+        name: endDateTime
+        required: true
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Optional ambulance to check.
+        explode: true
+        in: query
+        name: ambulanceId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Optional therapist to check.
+        explode: true
+        in: query
+        name: therapistId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Optional session id to ignore during overlap checks, useful\
+          \ while editing an existing session."
+        explode: true
+        in: query
+        name: excludeSessionId
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: "#/components/examples/AvailabilityResultExample"
+              schema:
+                $ref: "#/components/schemas/AvailabilityResult"
+          description: Availability result for the requested interval
+        "400":
+          description: Missing mandatory properties or invalid values in the request
+            body.
+        "404":
+          description: Specified therapist or ambulance does not exist
+      summary: Check ambulance and therapist availability
+      tags:
+      - availability
+components:
+  examples:
+    PatientExample:
+      description: Patient registered in physiotherapy
+      summary: Example patient
+      value:
+        id: patient-001
+        firstName: Janko
+        surname: Mrkvicka
+        birthNumber: 905514/1234
+        dateOfBirth: 1990-05-14
+        sex: male
+        healthInsurance: VSZP
+        email: janko.mrkvicka@example.com
+        phone: "+421905123456"
+        firstVisitDate: 2026-05-02
+    PatientsExample:
+      description: Example of registered patients
+      summary: List of patients
+      value:
+      - id: patient-001
+        firstName: Janko
+        surname: Mrkvicka
+        birthNumber: 905514/1234
+        dateOfBirth: 1990-05-14
+        sex: male
+        healthInsurance: VSZP
+        email: janko.mrkvicka@example.com
+        phone: "+421905123456"
+        firstVisitDate: 2026-05-02
+      - id: patient-002
+        firstName: Jana
+        surname: Sikovna
+        birthNumber: 925210/5678
+        dateOfBirth: 1992-02-10
+        sex: female
+        healthInsurance: Dovera
+        email: jana.sikovna@example.com
+        phone: "+421907654321"
+        firstVisitDate: 2026-05-04
+    TherapistExample:
+      description: Doctor or physiotherapist who can lead sessions
+      summary: Example therapist
+      value:
+        id: therapist-001
+        firstName: Jana
+        surname: Biela
+        title: MUDr.
+        specialization: rehabilitation medicine
+        email: jana.biela@example.com
+        phone: "+421903111222"
+    TherapistsExample:
+      description: Example of doctors and physiotherapists
+      summary: List of therapists
+      value:
+      - id: therapist-001
+        firstName: Jana
+        surname: Biela
+        title: MUDr.
+        specialization: rehabilitation medicine
+        email: jana.biela@example.com
+        phone: "+421903111222"
+      - id: therapist-002
+        firstName: Martin
+        surname: Novak
+        title: Bc.
+        specialization: musculoskeletal physiotherapy
+        email: martin.novak@example.com
+        phone: "+421904222333"
+    AmbulanceExample:
+      description: Ambulance or rehabilitation room
+      summary: Example ambulance
+      value:
+        id: ambulance-a12
+        name: Rehabilitation ambulance A12
+        roomNumber: A12
+        location: 2nd floor
+        notes: Main room for individual physiotherapy
+    AmbulancesExample:
+      description: Example of ambulances and rehabilitation rooms
+      summary: List of ambulances
+      value:
+      - id: ambulance-a12
+        name: Rehabilitation ambulance A12
+        roomNumber: A12
+        location: 2nd floor
+        notes: Main room for individual physiotherapy
+      - id: ambulance-b03
+        name: Hydrotherapy room B03
+        roomNumber: B03
+        location: ground floor
+        notes: Reserved for water therapy sessions
+    RehabilitationPlanExample:
+      description: One rehabilitation plan belonging to one patient
+      summary: Example rehabilitation plan
+      value:
+        id: plan-001
+        patientId: patient-001
+        status: active
+        notes: Post-operative rehabilitation after ACL reconstruction
+    RehabilitationPlansExample:
+      description: Example set of rehabilitation plans
+      summary: List of rehabilitation plans
+      value:
+      - id: plan-001
+        patientId: patient-001
+        status: active
+        notes: Post-operative rehabilitation after ACL reconstruction
+      - id: plan-002
+        patientId: patient-002
+        status: draft
+        notes: Initial plan created after first examination
+    RehabilitationSessionExample:
+      description: Session belonging to one rehabilitation plan
+      summary: Example rehabilitation session
+      value:
+        id: session-001
+        planId: plan-001
+        ambulanceId: ambulance-a12
+        therapistId: therapist-001
+        startDateTime: 2026-05-05T08:30:00Z
+        endDateTime: 2026-05-05T09:15:00Z
+        attendanceStatus: planned
+        confirmationStatus: confirmed
+        sessionNotes: Patient confirmed by phone.
+    RehabilitationSessionsExample:
+      description: Example set of rehabilitation sessions
+      summary: List of rehabilitation sessions
+      value:
+      - id: session-001
+        planId: plan-001
+        ambulanceId: ambulance-a12
+        therapistId: therapist-001
+        startDateTime: 2026-05-05T08:30:00Z
+        endDateTime: 2026-05-05T09:15:00Z
+        attendanceStatus: planned
+        confirmationStatus: confirmed
+        sessionNotes: Patient confirmed by phone.
+      - id: session-002
+        planId: plan-001
+        ambulanceId: ambulance-a12
+        therapistId: therapist-002
+        startDateTime: null
+        endDateTime: null
+        attendanceStatus: planned
+        confirmationStatus: tentative
+        sessionNotes: "Follow-up session reserved, exact date not confirmed yet."
+    AvailabilityResultExample:
+      description: Example of room and therapist availability for a selected time
+        interval
+      summary: Availability check result
+      value:
+        startDateTime: 2026-05-05T08:30:00Z
+        endDateTime: 2026-05-05T09:15:00Z
+        ambulance:
+          resourceId: ambulance-a12
+          isAvailable: false
+          conflictingSessionId: session-003
+        therapist:
+          resourceId: therapist-001
+          isAvailable: true
+          conflictingSessionId: null
+  responses:
+    BadRequest:
+      description: Missing mandatory properties or invalid values in the request body.
+    NotFound:
+      description: Requested resource does not exist.
+    PathBodyIdMismatch:
+      description: Identifier in path does not match identifier in the request body.
+  schemas:
+    Patient:
+      example:
+        healthInsurance: VSZP
+        firstName: Janko
+        phone: "+421905123456"
+        surname: Mrkvicka
+        sex: female
+        firstVisitDate: 2026-05-02
+        dateOfBirth: 1990-05-14
+        id: patient-001
+        birthNumber: 905514/1234
+        email: janko.mrkvicka@example.com
+      properties:
+        id:
+          description: Unique identifier of the patient
+          example: patient-001
+          type: string
+        firstName:
+          example: Janko
+          type: string
+        surname:
+          example: Mrkvicka
+          type: string
+        birthNumber:
+          description: Rodne cislo pacienta
+          example: 905514/1234
+          type: string
+        dateOfBirth:
+          example: 1990-05-14
+          format: date
+          type: string
+        sex:
+          $ref: "#/components/schemas/Sex"
+        healthInsurance:
+          $ref: "#/components/schemas/HealthInsurance"
+        email:
+          example: janko.mrkvicka@example.com
+          format: email
+          type: string
+        phone:
+          example: "+421905123456"
+          type: string
+        firstVisitDate:
+          example: 2026-05-02
+          format: date
+          type: string
+      required:
+      - birthNumber
+      - dateOfBirth
+      - email
+      - firstName
+      - firstVisitDate
+      - healthInsurance
+      - id
+      - phone
+      - sex
+      - surname
+      type: object
+    Therapist:
+      example:
+        firstName: Maria
+        phone: "+421903111222"
+        surname: Dubova
+        specialization: musculoskeletal physiotherapy
+        id: therapist-001
+        title: MUDr.
+        email: maria.dubova@example.com
+      properties:
+        id:
+          description: Unique identifier of the therapist
+          example: therapist-001
+          type: string
+        firstName:
+          example: Maria
+          type: string
+        surname:
+          example: Dubova
+          type: string
+        title:
+          example: MUDr.
+          type: string
+        specialization:
+          example: musculoskeletal physiotherapy
+          type: string
+        email:
+          example: maria.dubova@example.com
+          format: email
+          type: string
+        phone:
+          example: "+421903111222"
+          type: string
+      required:
+      - email
+      - firstName
+      - id
+      - phone
+      - surname
+      type: object
+    Ambulance:
+      example:
+        roomNumber: A12
+        notes: Main room for individual physiotherapy
+        name: Rehabilitation ambulance A12
+        location: 2nd floor
+        id: ambulance-a12
+      properties:
+        id:
+          description: Unique identifier of the ambulance or rehabilitation room
+          example: ambulance-a12
+          type: string
+        name:
+          example: Rehabilitation ambulance A12
+          type: string
+        roomNumber:
+          example: A12
+          type: string
+        location:
+          example: 2nd floor
+          type: string
+        notes:
+          example: Main room for individual physiotherapy
+          type: string
+      required:
+      - id
+      - name
+      - roomNumber
+      type: object
+    Sex:
+      enum:
+      - male
+      - female
+      example: female
+      type: string
+    HealthInsurance:
+      enum:
+      - UNION
+      - VSZP
+      - Dovera
+      example: VSZP
+      type: string
+    RehabilitationPlan:
+      example:
+        notes: Post-operative rehabilitation after ACL reconstruction
+        patientId: patient-001
+        id: plan-001
+        status: active
+      properties:
+        id:
+          description: Unique identifier of the rehabilitation plan
+          example: plan-001
+          type: string
+        patientId:
+          description: Identifier of the patient who owns the plan
+          example: patient-001
+          type: string
+        status:
+          $ref: "#/components/schemas/RehabilitationPlanStatus"
+        notes:
+          example: Post-operative rehabilitation after ACL reconstruction
+          type: string
+      required:
+      - id
+      - patientId
+      - status
+      type: object
+    RehabilitationPlanStatus:
+      enum:
+      - draft
+      - active
+      - completed
+      - canceled
+      example: active
+      type: string
+    RehabilitationSession:
+      example:
+        therapistId: therapist-001
+        startDateTime: 2026-05-05T08:30:00Z
+        confirmationStatus: tentative
+        planId: plan-001
+        id: session-001
+        ambulanceId: ambulance-a12
+        endDateTime: 2026-05-05T09:15:00Z
+        sessionNotes: "Session reserved, exact time will be confirmed after phone\
+          \ call with patient."
+        attendanceStatus: planned
+      properties:
+        id:
+          description: Unique identifier of the session
+          example: session-001
+          type: string
+        planId:
+          description: Identifier of the parent rehabilitation plan
+          example: plan-001
+          type: string
+        ambulanceId:
+          description: Identifier of the ambulance or room where the session takes
+            place
+          example: ambulance-a12
+          type: string
+        therapistId:
+          description: Identifier of the doctor or physiotherapist assigned to the
+            session
+          example: therapist-001
+          type: string
+        startDateTime:
+          description: Start of the session. May be null for tentative scheduling.
+          example: 2026-05-05T08:30:00Z
+          format: date-time
+          nullable: true
+          type: string
+        endDateTime:
+          description: End of the session. May be null for tentative scheduling.
+          example: 2026-05-05T09:15:00Z
+          format: date-time
+          nullable: true
+          type: string
+        attendanceStatus:
+          $ref: "#/components/schemas/AttendanceStatus"
+        confirmationStatus:
+          $ref: "#/components/schemas/SessionConfirmationStatus"
+        sessionNotes:
+          example: "Session reserved, exact time will be confirmed after phone call\
+            \ with patient."
+          type: string
+      required:
+      - ambulanceId
+      - attendanceStatus
+      - confirmationStatus
+      - id
+      - planId
+      - therapistId
+      type: object
+    AttendanceStatus:
+      enum:
+      - planned
+      - attended
+      - canceled
+      example: planned
+      type: string
+    SessionConfirmationStatus:
+      enum:
+      - tentative
+      - confirmed
+      example: tentative
+      type: string
+    AvailabilityResult:
+      example:
+        startDateTime: 2026-05-05T08:30:00Z
+        ambulance:
+          isAvailable: true
+          resourceId: ambulance-a12
+          conflictingSessionId: session-003
+        endDateTime: 2026-05-05T09:15:00Z
+        therapist:
+          isAvailable: true
+          resourceId: ambulance-a12
+          conflictingSessionId: session-003
+      properties:
+        startDateTime:
+          example: 2026-05-05T08:30:00Z
+          format: date-time
+          type: string
+        endDateTime:
+          example: 2026-05-05T09:15:00Z
+          format: date-time
+          type: string
+        ambulance:
+          $ref: "#/components/schemas/AvailabilityCheckItem"
+        therapist:
+          $ref: "#/components/schemas/AvailabilityCheckItem"
+      required:
+      - endDateTime
+      - startDateTime
+      type: object
+    AvailabilityCheckItem:
+      example:
+        isAvailable: true
+        resourceId: ambulance-a12
+        conflictingSessionId: session-003
+      properties:
+        resourceId:
+          example: ambulance-a12
+          type: string
+        isAvailable:
+          example: true
+          type: boolean
+        conflictingSessionId:
+          example: session-003
+          nullable: true
+          type: string
+      required:
+      - isAvailable
+      type: object

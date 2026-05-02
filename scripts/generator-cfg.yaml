@@ -1,0 +1,8 @@
+generatorName: go-gin-server
+outputDir: /local
+inputSpec: /local/api/physio.openapi.json
+enablePostProcessFile: true
+additionalProperties:
+  apiPath: internal/physio
+  packageName: physio
+  interfaceOnly: true
