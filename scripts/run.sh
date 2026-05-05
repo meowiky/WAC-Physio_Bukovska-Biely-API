@@ -40,12 +40,12 @@ case "$COMMAND" in
             openapitools/openapi-generator-cli \
             generate -c /local/scripts/generator-cfg.yaml
         ;;
-    # test)
-    #     (
-    #         cd "${PROJECT_ROOT}" || exit 1
-    #         go test -v ./...
-    #     )
-    #     ;;
+    test)
+        (
+            cd "${PROJECT_ROOT}" || exit 1
+            go test -v ./...
+        )
+        ;;
     mongo)
         mongo up
         ;;
