@@ -1334,6 +1334,12 @@
           "completed",
           "canceled"
         ],
+        "x-enum-varnames": [
+          "DRAFT",
+          "ACTIVE",
+          "COMPLETED",
+          "PLAN_CANCELED"
+        ],
         "example": "active"
       },
       "RehabilitationSession": {
@@ -1399,6 +1405,11 @@
           "planned",
           "attended",
           "canceled"
+        ],
+        "x-enum-varnames": [
+          "PLANNED",
+          "ATTENDED",
+          "CANCELED"
         ],
         "example": "planned"
       },

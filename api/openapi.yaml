@@ -1218,6 +1218,11 @@ components:
       - canceled
       example: active
       type: string
+      x-enum-varnames:
+      - DRAFT
+      - ACTIVE
+      - COMPLETED
+      - PLAN_CANCELED
     RehabilitationSession:
       example:
         therapistId: therapist-001
@@ -1284,6 +1289,10 @@ components:
       - canceled
       example: planned
       type: string
+      x-enum-varnames:
+      - PLANNED
+      - ATTENDED
+      - CANCELED
     SessionConfirmationStatus:
       enum:
       - tentative

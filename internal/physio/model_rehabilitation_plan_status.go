@@ -14,8 +14,8 @@ type RehabilitationPlanStatus string
 
 // List of RehabilitationPlanStatus
 const (
-	DRAFT         RehabilitationPlanStatus = "draft"
-	ACTIVE        RehabilitationPlanStatus = "active"
-	COMPLETED     RehabilitationPlanStatus = "completed"
+	DRAFT RehabilitationPlanStatus = "draft"
+	ACTIVE RehabilitationPlanStatus = "active"
+	COMPLETED RehabilitationPlanStatus = "completed"
 	PLAN_CANCELED RehabilitationPlanStatus = "canceled"
 )
