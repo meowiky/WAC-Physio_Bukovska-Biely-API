@@ -1,0 +1,15 @@
+internal/physio/api_*
+internal/physio/model_*
+internal/physio/routers.go
+build/
+deployments/
+.git
+.github
+.env
+.env.example
+readme.md
+api/openapi.go
+api/openapi.yaml
+api/swagger.html
+scripts/run.sh
+scripts/run.ps1
