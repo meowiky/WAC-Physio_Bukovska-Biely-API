@@ -8,8 +8,6 @@ deployments/
 .env
 .env.example
 readme.md
-api/openapi.go
 api/openapi.yaml
-api/swagger.html
 scripts/run.sh
 scripts/run.ps1

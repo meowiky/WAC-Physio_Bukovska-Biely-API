@@ -22,9 +22,10 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # copy sources - higher frequency of changes
+COPY api/ api/
 COPY internal/ internal/
 COPY cmd/ cmd/
-COPY --from=api /local/ ./
+COPY --from=api /local/internal/ internal/
 
 # ensure tests are passing
 RUN go test ./...
